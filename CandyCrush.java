@@ -100,8 +100,7 @@ class Solution {
 	                		if (!candiesToCrush[r][col]) {
 		                		// Mark the cell as to be crushed
 		                		candiesToCrush[r][col] = true;
-		                		
-		                		// Increment the number of cells we need to crush
+
 		                		currCandyCrushCount++;
 	                		}
 	                	}
@@ -114,8 +113,7 @@ class Solution {
 	                		if (!candiesToCrush[row][c]) {
 		                		// Mark the cell as to be crushed
 		                		candiesToCrush[row][c] = true;
-		                		
-		                		// Increment the number of cells we need to crush
+	
 		                		currCandyCrushCount++;
 	                		}
 	                	}
