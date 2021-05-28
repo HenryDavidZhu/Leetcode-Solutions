@@ -50,17 +50,23 @@ class Solution {
                 // Add our triplet to our list of triplets
                 tripletList.add(triplet);
 
-                // Decrease our search range:
-                // Move the left index to point to the next number that is not 
-                // equal to the current left number (avoid duplicates)
+                // Decrease our search range by moving the left and right indexes
+                // to point to the next numbers that are not equal to the current
+                // left and right numbers, respectively:
+                
+                // Narrow search range from left index
                 leftNumIndex++;
                 
                 while (leftNumIndex < rightNumIndex && numbers[leftNumIndex] == numbers[leftNumIndex - 1]) {
                     leftNumIndex++;
                 }
                 
-                // Decrement the right pointer
+                // Narrow search range from right index
                 rightNumIndex--;
+                
+                while (leftNumIndex < rightNumIndex && numbers[rightNumIndex] == numbers[rightNumIndex + 1]) {
+                    rightNumIndex--;
+                }
             }
             
             // Our sum is too small, increment the left pointer
