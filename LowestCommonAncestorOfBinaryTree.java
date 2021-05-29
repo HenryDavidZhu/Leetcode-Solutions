@@ -20,8 +20,8 @@ class Solution {
         List<TreeNode> rootToP = new LinkedList<TreeNode>();
         List<TreeNode> rootToQ = new LinkedList<TreeNode>();
         
-        findPathToNode(root, p, rootToP);
-        findPathToNode(root, q, rootToQ);
+        findPath(root, p, rootToP);
+        findPath(root, q, rootToQ);
         
         // Determine the last shared node in the paths from p to q
         int shortestPathLen = Math.min(rootToP.size(), rootToQ.size());
@@ -38,7 +38,7 @@ class Solution {
     }
     
     // Recursive function that determines the path from a given root to a node (DFS)
-    private boolean findPathToNode(TreeNode root, TreeNode target, List<TreeNode> path) {
+    private boolean findPath(TreeNode root, TreeNode target, List<TreeNode> path) {
         if (root == null) {
             return false;
         }
