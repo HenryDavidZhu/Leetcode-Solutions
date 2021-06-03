@@ -36,13 +36,10 @@ class Solution {
     
     // Determines the root node of the component a specified node is in
     private int find(int node, int[] nodeParents) {
-        Set<Integer> visitedNodes = new HashSet<Integer>();
-        
         // Continue traversing up through the node's parents, until we
         // hit a node whose parent is itself (root node of component),
         // or we reached the start of a cycle
-        while (nodeParents[node] != node && !visitedNodes.contains(node)) {
-            visitedNodes.add(node);
+        while (nodeParents[node] != node) {
             node = nodeParents[node];
         }
         
