@@ -16,18 +16,18 @@ class Solution {
         
         // Check if every edge is a redundant connection.
         for (int[] edge : edges) {
-            int nodeAComponent = find(edge[0], nodeParents);
-            int nodeBComponent = find(edge[1], nodeParents);
+            int nodeARoot = find(edge[0], nodeParents);
+            int nodeBRoot = find(edge[1], nodeParents);
             
             // If both of the edge's nodes are already in the same component,
             // the edge is a redundant connection.
-            if (nodeAComponent == nodeBComponent) {
+            if (nodeARoot == nodeBRoot) {
                 redundantConnection = edge;
             }
             // When we have too nodes which are in different components, we
             // apply the union operation to merge them into the same component.
             else {
-                nodeParents[nodeAComponent] = nodeBComponent;
+                nodeParents[nodeARoot] = nodeBRoot;
             }
         }
         
