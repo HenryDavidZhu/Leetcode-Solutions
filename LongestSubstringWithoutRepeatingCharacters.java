@@ -11,7 +11,6 @@ class Solution {
             Character currChar = s.charAt(i);
                 
             if (!substringIndexes.containsKey(currChar)) {
-                //System.out.println(currChar + " : " + i);
                 substringIndexes.put(currChar, i);
             }
             else {
