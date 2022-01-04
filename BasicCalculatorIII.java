@@ -1,56 +1,63 @@
 class Solution {
     public int calculate(String s) {
-        // Time Complexity: O(n), Space Complexity: O(n)
-        Queue<Character> q = new LinkedList<Character>();
-        for (Character c : s.toCharArray()) {
-            if (c != ' ') {
-                q.add(c);
-            }
+        // Convert the provided string into a Queue.
+        Queue<Character> sQueue = new LinkedList<Character>();
+        for (Character sChar : s.toCharArray()) {
+            sQueue.add(sChar);
         }
-        q.add(' ');
+        sQueue.add(' ');
         
-        return computeExpression(q);
+        return computeExpression(sQueue);
     }
     
+    // Evaluates the result of an expression provided as a Queue using the
+    // following recursive algorithm:
+    //
+    // [A] + ([B] + ([C])) will be evaluated as:
+    // [A] + computeExpression([B] + ([C]))
+    // computeExpression([B] + ([C])) = [B] + computeExpression([C])
     private int computeExpression(Queue<Character> sQueue) {
-        int num = 0, prev = 0, sum = 0;
+        int prev = 0;
+        int curr = 0;
+        int result = 0;
         Character prevOp = '+';
         
         while (!sQueue.isEmpty()) {
-            Character c = sQueue.poll();
+            Character currChar = sQueue.poll();
             
-            if (Character.isDigit(c)) {
-                num = num * 10 + Character.getNumericValue(c);
+            if (Character.isDigit(currChar)) {
+                curr = 10 * curr + Character.getNumericValue(currChar);
             }
-            else if (c == '(') {
-                num = computeExpression(sQueue);   
+            else if (currChar == '(') {
+                curr = computeExpression(sQueue);
             }
             else {
                 switch (prevOp) {
                     case '+':
-                        sum += prev;
-                        prev = num;
+                        result = result + prev;
+                        prev = curr;
                         break;
                     case '-':
-                        sum += prev;
-                        prev = -num;
+                        result = result + prev;
+                        prev = -curr;
                         break;
                     case '*':
-                        prev *= num;
+                        prev = prev * curr;
                         break;
                     case '/':
-                        prev /= num;
+                        prev = prev / curr;
                         break;
                 }
                 
-                if (c == ')') {
+                if (currChar == ')') {
                     break;
                 }
-                prevOp = c;
-                num = 0;
+                
+                prevOp = currChar;
+                curr = 0;
             }
         }
         
-        return prev + sum;
+        return prev + result;
     }
 }
