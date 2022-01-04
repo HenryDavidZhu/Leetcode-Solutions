@@ -1,73 +1,86 @@
+enum Color {
+    WHITE, GRAY, BLACK
+}
+
+// O(n) time and space complexity, with n being the number of courses.
 class Solution {
-    // O(V + E) time, O(V + E) space.
+    // Maps each course to its COLOR
+    HashMap<Integer, Color> courseToColor = new HashMap<Integer, Color>();
+    
+    // Represents our DAG (Directed Acyclic Graph)
+    HashMap<Integer, LinkedList<Integer>> adjacencyList = new HashMap<Integer, LinkedList<Integer>>();
+    
+    // Stack storing a topological ordering of the nodes in the DAG
+    Stack<Integer> topologicalOrdering = new Stack<Integer>();
+    
+    // Whether we should continue exploring the current node.
+    boolean cycleExists = false;
+    
+    // Initialize our data structures.
+    public void initializeDataStructures(int numCourses, int[][] prerequisites) {
+        // Initialize the mapping of each course to its COLOR
+        for (int i = 0; i < numCourses; i++) {
+            courseToColor.put(i, Color.WHITE);
+        }
+        
+        // Initialize our DAG (Directed Acyclic Graph)
+        for (int[] link : prerequisites) {
+            int destination = link[0];
+            int prerequisite = link[1];
+            
+            LinkedList<Integer> destinations = adjacencyList.getOrDefault(prerequisite, new LinkedList<Integer>());
+            destinations.add(destination);
+            
+            adjacencyList.put(prerequisite, destinations);
+        }
+    }
+    
+    // DFS traversal using 3-level Coloring
+    private void dfsTraversal(Integer root) {
+        // Mark the current root as in-progress of being traversed (GRAY)
+        courseToColor.put(root, Color.GRAY);
+        
+        for (Integer child : adjacencyList.getOrDefault(root, new LinkedList<Integer>())) {
+            // We only visit the child if it does not result in a cycle (it is WHITE). 
+            if (courseToColor.get(child) == Color.WHITE) {
+                dfsTraversal(child);
+            }
+            
+            // If it is gray, that means that we went back to a node we already visited in the traversal; we detected a cycle, and thus no topological sort exists.
+            if (courseToColor.get(child) == Color.GRAY) {
+                cycleExists = true;
+                return;
+            }
+        }
+        
+        // Once we have hit a dead end (no children or all children are gray or black), that means we have already added all of the courses that have the current course as a prerequisite to the Stack, so we can mark the current course as BLACK and add the current course to the Stack (topological order).
+        courseToColor.put(root, Color.BLACK);
+        topologicalOrdering.add(root);
+    }
+    
     public int[] findOrder(int numCourses, int[][] prerequisites) {
-        int[] schedule = new int[numCourses];
+        initializeDataStructures(numCourses, prerequisites);
         
-        // Generate a mapping of courses to their indegree.
-        int[] indegree = new int[numCourses];
-        
-        // Generate a dependency mapping and update the indegree mapping.
-        // dependency mapping: course -> list of dependencies to that course
-        //
-        // Generate an adjacency list that maps each course to the list
-        // of courses it is a dependency for.
-        // adjacency list: course -> list of courses it is a dependency for
-        HashMap<Integer, LinkedList<Integer>> dependencies = new HashMap<Integer, LinkedList<Integer>>();
-        HashMap<Integer, LinkedList<Integer>> adjacencyList = new HashMap<Integer, LinkedList<Integer>>();
-        
-        for (int[] prerequisite : prerequisites) {
-            int course = prerequisite[0];
-            int dependency = prerequisite[1];
-            
-            LinkedList<Integer> courseDependencies = dependencies.getOrDefault(course, new LinkedList<Integer>());
-            courseDependencies.add(dependency);
-            
-            dependencies.put(course, courseDependencies);
-            indegree[course] = courseDependencies.size();
-            
-            LinkedList<Integer> coursesThatRequireDependency = adjacencyList.getOrDefault(dependency, new LinkedList<Integer>());
-            coursesThatRequireDependency.add(course);
-            adjacencyList.put(dependency, coursesThatRequireDependency);
+        // Go through all the courses.
+        for (int i = 0; i < numCourses; i++) {
+            // Only traverse through nodes that have not been processed.
+            if (courseToColor.get(i) == Color.WHITE) {
+                dfsTraversal(i);
+            }
         }
         
-        // Keep track of the courses that we have added to your schedule.
-        HashSet<Integer> coursesAdded = new HashSet<Integer>();
-        
-        // Continuously add course with 0 indegree (prerequisites all
-        // satisfied) and update the indegree mapping.
-        int index = 0;
-        
-        while (true) {
-            if (index == numCourses) {
-                return schedule;
-            }
+        // If no cycle exists, build the topological sorted array from the Stack.
+        int[] order = new int[] {};
+        if (!cycleExists) {
+            order = new int[topologicalOrdering.size()];
+            int index = 0;
             
-            // Find courses with 0 indegree.
-            LinkedList<Integer> zeroIndegree = new LinkedList<Integer>();
-            for (int i = 0; i < numCourses; i++) {
-                if (indegree[i] == 0) {
-                    if (!coursesAdded.contains(i)) {
-                        zeroIndegree.add(i);
-                    }
-                }
-            }
-            
-            if (zeroIndegree.size() == 0) {
-                return new int[] {};
-            }
-            
-            for (Integer nextCourse : zeroIndegree) {
-                // Add courses with 0 indegree to our schedule.
-                schedule[index] = nextCourse;
-                coursesAdded.add(nextCourse);
+            while (!topologicalOrdering.isEmpty()) {
+                order[index] = topologicalOrdering.pop();
                 index++;
-                
-                // Find all the courses that require nextCourse.
-                LinkedList<Integer> coursesRequireNextCourse = adjacencyList.getOrDefault(nextCourse, new LinkedList<Integer>());
-                for (Integer course : coursesRequireNextCourse) {
-                    indegree[course]--;
-                }
             }
         }
+        
+        return order;
     }
 }
