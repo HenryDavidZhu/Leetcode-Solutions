@@ -1,93 +1,69 @@
 class Solution {
-    // O(n) time, O(n) space.
+    // O(n) time, O(1) space.
     public int calculate(String s) {
-        // "5 + 8 + 3 * 3 * 6+"
-        // Stack that stores all the (operators + numbers) before a multiplication or division
-        // operator. We don't compute addition and subtraction after we finish multiplication
-        // or division.
+        // Proivded Expression: 356 + 5 * 5 * 5 - 63 + 45
+        // Auxillary Notation: [+ 0] - 356 + 5 * 5 * 5 - 63 + 45
         //
-        // We keep track of the current number, the sign of that number (+ operator means 1, -
-        // operator means -1), the default sign will be 1. We also keep track of whether or
-        // not or current number follows a * or / operator, and if so, which * or / operator
-        // it follows. This is because if the operator is + or -, we can simply add it to
-        // the stack, but once we encounter a * or / operator, we need to immediately
-        // * or / the  current number with the previous (operator + number), located at
-        // the top of the stack, and then add that to the stack.
+        // Go through each character and perform the following procedure
         //
-        // Finally, if we have any remaining (operators + numbers) on the Stack, we add
-        // them together to the final result.
+        // -----------------------------------------------------
+        //
+        // Case 1: We encounter a digit.
+        // Get the complete number and set currNum to that.
+        //        
+        // Case 2: We encounter an operator (+/*/divide/-) or we have
+        // reached the last character.
+        //  (a). Operator is + (then we can add previous num)
+        //       -> if previous operator is +, then prevNum = currNum
+        //       -> if previous operator is -, then prevNum = -currNum
+        //  (b). Operator is - (then we can add previous num)
+        //       -> if previous operator is +, then prevNum = currNum
+        //       -> if previous operator is -, then prevNum = -currNum
+        //  (c). Operator is * (prevNum = prevNum * currNum)
+        //  (d). Operator is / (prevNum = prevNum / currNum)
+        //
+        // Finally, we reset currNum and the operation.
+        // currNum = 0
+        // operation is current character
+        //
+        // -----------------------------------------------------
+        //
+        // Finally, add prevNum to result and return result.
+        int prevNum = 0;
+        int currNum = 0;
+        Character prevOp = '+';
+        int result = 0;
         
-        int sum = 0;
-        Stack<Integer> expBeforeMultOrDiv = new Stack<Integer>();
-        
-        int num = 0;
-        int sign = 1; // Operator (1 means +, -1 means -)
-        
-        boolean followMultOrDiv = false;
-        Character multOrDiv = null;
-        
-        // Iterate through all the characters in the provided string.
         char[] sCharArray = s.toCharArray();
         
         for (int i = 0; i < sCharArray.length; i++) {
-            // Case 1: We encounter a digit (we need to find the complete number)
             if (Character.isDigit(sCharArray[i])) {
-                // Find the complete number.
-                while (i < sCharArray.length && Character.isDigit(sCharArray[i])) {
-                    num = 10 * num + Character.getNumericValue(sCharArray[i]);
-                    i++;
+                currNum = 10 * currNum + Character.getNumericValue(sCharArray[i]);
+            }
+            if (!Character.isDigit(sCharArray[i]) && sCharArray[i] != ' ' || i == sCharArray.length - 1) {
+                switch (prevOp) {
+                    case '+':
+                        result += prevNum;
+                        prevNum = currNum;
+                        break;
+                    case '-':
+                        result += prevNum;
+                        prevNum = -currNum;
+                        break;
+                    case '*':
+                        prevNum *= currNum;
+                        break;
+                    case '/':
+                        prevNum /= currNum;
+                        break;
                 }
                 
-                // i went over by one.
-                i--;
-                
-                // Add the operator and current number to the stack.
-                if (!followMultOrDiv) {
-                    expBeforeMultOrDiv.push(sign * num);
-                }
-                else {
-                    if (multOrDiv == '*') {
-                        Integer prevNumAndOperator = expBeforeMultOrDiv.pop();
-                        expBeforeMultOrDiv.push(prevNumAndOperator * num);
-                    }
-                    if (multOrDiv == '/') {
-                        Integer prevNumAndOperator = expBeforeMultOrDiv.pop();
-                        expBeforeMultOrDiv.push(prevNumAndOperator / num);
-                    }
-                }
-                
-                // Reset the number and followMultOrDiv.
-                num = 0;
-                followMultOrDiv = false;
-            }
-            // Case 2: We encounter a +/-, then we simply add the current sum and the operator
-            // to the stack.
-            if (sCharArray[i] == '+') {
-                sign = 1;
-                followMultOrDiv = false;
-            }
-            if (sCharArray[i] == '-') {
-                sign = -1;
-                followMultOrDiv = false;
-            }
-            // Case 3: When we encoutner a * or /, then we update the sum by popping the last
-            // value from the Stack and aplying either the * or / value on the top of the stack
-            // and the current number.
-            if (sCharArray[i] == '*') {
-                followMultOrDiv = true;
-                multOrDiv = '*';
-            }
-            if (sCharArray[i] == '/') {
-                followMultOrDiv = true;
-                multOrDiv = '/';
+                prevOp = sCharArray[i];
+                currNum = 0;
             }
         }
         
-        int answer = 0;
-        while (!expBeforeMultOrDiv.isEmpty()) {
-            answer += expBeforeMultOrDiv.pop();
-        }
-        
-        return answer;
+        result += prevNum;
+        return result;
     }
-}
+} 
