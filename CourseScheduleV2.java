@@ -7,20 +7,17 @@ class Solution {
     
     boolean detectedCycle = false;
     
+    // Time: O(|V| + |E|)
+    // Space: O(|V| + |E|)
     public boolean canFinish(int numCourses, int[][] prerequisites) {
-        // Represent this problem as a DAG (directed acyclic graph), in which the
-        // edge u -> v represents a prerequisite u for a course v. If there
-        // is a cycle in the graph, it means we cannot finish all of the courses,
-        // since a course is a prerequisite to itself.
-        //
         // Store the graph as an adjacency list.
         HashMap<Integer, LinkedList<Integer>> adjacencyList = new HashMap<Integer, LinkedList<Integer>>();
         
-        // Iterate through all the prerequisites and update every single
-        // predecessor's list of successors in our adjacency list.
+        // Iterate through all the prerequisites and update every prerequisite's list of
+        // successors in our adjacency list.
         for (int[] prerequisite : prerequisites) {
-            int predecessor = prerequisite[0];
-            int successor = prerequisite[1];
+            int successor = prerequisite[0];
+            int predecessor = prerequisite[1];
             
             LinkedList<Integer> successors = adjacencyList.getOrDefault(predecessor, new LinkedList<Integer>());
             successors.add(successor);
@@ -28,33 +25,31 @@ class Solution {
             adjacencyList.put(predecessor, successors);
         }
         
-        // By default, all nodes have not been visited yet.
+        // By default, all nodes have not been vsiited yet.
         Status[] nodeStatuses = new Status[numCourses];
         
         for (int i = 0; i < numCourses; i++) {
             nodeStatuses[i] = Status.UNVISITED;
         }
         
-        // For all the nodes in the graph, if we have not already visited that
-        // node, we will execute a DFS traversal on that node. 
+        // For all the nodes in the graph, if we have not already visited that node, we
+        // will execute a DFS traversal on that node.
         for (int i = 0; i < numCourses; i++) {
             if (nodeStatuses[i] == Status.UNVISITED) {
                 dfsRecursive(adjacencyList, nodeStatuses, i);
                 
-                // If, during our traveral, we detect a cycle, we can't finish through
-                // all of the courses.
+                // If, during our traversal, we detect a cycle, we can't finish through all of the courses.
                 if (detectedCycle) {
                     return false;
                 }
             }
         }
-
+        
         return true;
     }
-
+    
     private void dfsRecursive(HashMap<Integer, LinkedList<Integer>> adjacencyList, Status[] nodeStatuses, Integer currCourse) {
-        // If our current course is already visited (fully processed), 
-        // we don't need to proceed further.
+        // If our current course is already visited, we do not need to proceed further.
         if (nodeStatuses[currCourse] == Status.VISITED) {
             return;
         }
@@ -75,8 +70,8 @@ class Solution {
             dfsRecursive(adjacencyList, nodeStatuses, successor);
         }
         
-        // After visiting of all our current course's successors, mark
-        // our current course as visited.
+        // After visiting all of our current course's successors, mark our current course
+        // as visited.
         nodeStatuses[currCourse] = Status.VISITED;
         
         return;
